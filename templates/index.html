@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta property="og:title" content="전국 맛집 추천"/>
+    <meta property="og:description" content="전국의 맛집을 공유하는 사이트입니다. 자신의 맛집을 등록해주세요!"/>
+    <meta property="og:image" content="https://cdn.pixabay.com/photo/2017/01/26/02/06/platter-2009590__340.jpg"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+    <title>전국 맛집 추천</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/static/index.css">
+</head>
+
+<script>
+    function close_popup() {
+        $("#popup").fadeOut(200);
+        get_comment_list()
+    }
+
+    $(document).ready(function () {
+        get_comment_list()
+
+        $('#card_box').on('click', '.card', function () {
+            let i = this.id
+            $('#popup_iframe').attr('src', '/popup/' + i);
+            $('html, body').css({
+                'overflow': 'hidden'
+            });
+            $('#popup').fadeIn(200);
+            $('.popup').scrollTop(0);
+        })
+
+        $(".close_popup_btn").click(function () {
+            $('html, body').css({
+                'overflow': 'auto'
+            });
+            $('#popup').fadeOut(200);
+        });
+
+        $('#page').on('click', '.page_num', function () {
+            $('#page .page_num').not(this).css("font-weight", "normal");
+            $(this).css("font-weight", "bold");
+
+            let page_num = parseInt(this.text)
+            let index_num1 = 'index' + ((page_num - 1) * 5 + 1)
+            let index_num2 = 'index' + ((page_num - 1) * 5 + 2)
+            let index_num3 = 'index' + ((page_num - 1) * 5 + 3)
+            let index_num4 = 'index' + ((page_num - 1) * 5 + 4)
+            let index_num5 = 'index' + ((page_num - 1) * 5 + 5)
+
+            $('#card_box').find('.col').hide()
+            $('#card_box').find('.' + index_num1).show()
+            $('#card_box').find('.' + index_num2).show()
+            $('#card_box').find('.' + index_num3).show()
+            $('#card_box').find('.' + index_num4).show()
+            $('#card_box').find('.' + index_num5).show()
+        })
+    })
+
+    function open_box() {
+        $('#post_box').show()
+        $('#title_box2').empty()
+        let temp_html = `<button onclick="close_box()">등록창 닫기</button>`
+        $('#title_box2').append(temp_html)
+    }
+
+    function close_box() {
+        $('#post_box').hide()
+        $('#title_box2').empty()
+        let temp_html = `<button onclick="open_box()">맛집 등록하기</button>`
+        $('#title_box2').append(temp_html)
+    }
+
+    // function save_comment() {
+    //     let name = $('#name').val()
+    //     let url = $('#url').val()
+    //     let star = $('#star').val()
+    //     let menu = $('#menu').val()
+    //     let address = $('#address').val()
+    //     let comment = $('#comment').val()
+    //     let tag = $('#tag').val()
+    //     let password = $('#password').val()
+    //
+    //
+    //     $.ajax({
+    //         type: 'POST',
+    //         url: '/comment',
+    //         data: {
+    //             name_give: name, url_give: url, star_give: star, menu_give: menu, address_give: address,
+    //             comment_give: comment, tag_give: tag, password_give: password
+    //         },
+    //         success: function (response) {
+    //             alert(response['msg'])
+    //             window.location.reload()
+    //         }
+    //     })
+    // }
+
+    // function get_comment_list() {
+    //     $('#card_box').empty()
+    //
+    //     $.ajax({
+    //         type: "GET",
+    //         url: "/comment",
+    //         data: {},
+    //         success: function (response) {
+    //             let rows = response['comment_list']
+    //             for (let i = 0; i < rows.length; i++) {
+    //                 let name = rows[i]['name']
+    //                 let url = rows[i]['url']
+    //                 let star = rows[i]['star']
+    //                 let menu = rows[i]['menu']
+    //                 let comment = rows[i]['comment']
+    //                 let tag = rows[i]['tag']
+    //
+    //                 let star_img = '⭐'.repeat(star)
+    //
+    //                 let temp_html = `<div class="col">
+    //                                      <button id="${i}" class="card h-100">
+    //                                          <img src="${url}"
+    //                                               class="card-img-top" alt="...">
+    //                                          <div class="card-body">
+    //                                              <h5 class="card_title">${name}</h5>
+    //                                              <p class="card_text">${menu}</p>
+    //                                              <p>${star_img}</p>
+    //                                              <p class="card_comment">${comment}</p>
+    //                                              <p class="card_tag">${tag}</p>
+    //                                          </div>
+    //                                      </button>
+    //                                  </div>`
+    //                 $('#card_box').append(temp_html)
+    //             }
+    //         }
+    //     })
+    // }
+
+    function save_comment() {
+        event.preventDefault();
+
+        let name = $('#name').val()
+        let url = $('#url').val()
+        let star = $('#star').val()
+        let menu = $('#menu').val()
+        let address = $('#address').val()
+        let comment = $('#comment').val()
+        let tag = $('#tag').val()
+        let password = $('#password').val()
+
+        if (name.trim() === '') {
+            alert('가게 이름을 입력해주세요.')
+        } else if (star === '') {
+            alert('별점을 선택해주세요.')
+        } else if (menu.trim() === '') {
+            alert('대표 메뉴를 입력해주세요.')
+        } else if (address.trim() === '') {
+            alert('주소를 입력해주세요.')
+        } else if (comment.trim() === '') {
+            alert('코멘트를 입력해주세요.')
+        } else if (password.trim() === '') {
+            alert('비밀번호를 입력해주세요.')
+        } else {
+            let formData = new FormData();
+            formData.append("name_give", name);
+            formData.append("url_give", url);
+            formData.append("star_give", star);
+            formData.append("menu_give", menu);
+            formData.append("address_give", address);
+            formData.append("comment_give", comment);
+            formData.append("tag_give", tag);
+            formData.append("password_give", password);
+
+            fetch('/comment', {method: "POST", body: formData,}).then((res) => res.json()).then((data) => {
+                //console.log(data)
+                alert(data["msg"]);
+                window.location.reload();
+            });
+        }
+    }
+
+    function get_comment_list() {
+        $('#card_box').empty()
+        $('#page').empty()
+
+        fetch('/comment').then((res) => res.json()).then((data) => {
+            let rows = data['comment_list']
+            rows.forEach((a, index) => {
+                let i = index + 1
+                let name = a['name']
+                let url = a['url']
+                let star = a['star']
+                let menu = a['menu']
+                let comment = a['comment']
+                let tag = a['tag']
+
+                let star_img = '⭐'.repeat(star)
+
+                let temp_html = `<div class="col index${i}">
+                                             <button id="${index}" class="card h-100">
+                                                 <img src="${url}" class="card-img-top" alt="No Image"
+                                                      onerror="this.onerror=null; this.src='https://tacm.com/wp-content/uploads/2018/01/no-image-available.jpeg'">
+                                                 <div class="card-body">
+                                                     <h5 class="card_title">${name}</h5>
+                                                     <p class="card_text">${menu}</p>
+                                                     <p>${star_img}</p>
+                                                     <p class="card_comment">${comment}</p>
+                                                 <p class="card_tag">${tag}</p>
+                                                 </div>
+                                             </button>
+                                         </div>`
+                $('#card_box').append(temp_html)
+            })
+
+            for (let i = 1; i < Math.ceil(rows.length / 5) + 1; i++) {
+                let temp_html = `<a href="#" id="${i}" class="page_num">${i}</a>`
+                $('#page').append(temp_html)
+            }
+            $('#page').find(':first-child').css("font-weight", "bold");
+        })
+    }
+
+    function re_load() {
+        window.parent.location.reload()
+    }
+</script>
+
+<body>
+    <div class="title_box">
+        <button id="title_box1" onclick="re_load()" class="title_box1">
+            <h1>전국 맛집 추천</h1>
+        </button>
+        <div class="title_box2" id="title_box2">
+            <button onclick="open_box()">맛집 등록하기</button>
+        </div>
+    </div>
+    <div class="post_box" id="post_box">
+        <div class="form-floating mb-2">
+            <input id="name" type="text" class="form-control" placeholder="가게 이름">
+            <label>가게 이름</label>
+        </div>
+        <div class="form-floating mb-2">
+            <input id="url" type="url" class="form-control" placeholder="사진 URL">
+            <label>사진 URL</label>
+        </div>
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <select id="star" class="form-select" aria-label="별점 선택">
+                        <option value="" selected>-- 선택하기 --</option>
+                        <option value="1">⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                    </select>
+                    <label for="floatingSelectGrid">별점</label>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="form-floating mb-2">
+                    <input id="menu" type="text" class="form-control" placeholder="대표 메뉴">
+                    <label for="floatingInputGrid">대표 메뉴</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-floating mb-2">
+            <input id="address" type="text" class="form-control" placeholder="주소">
+            <label>주소</label>
+        </div>
+        <div class="form-floating mb-2">
+                <textarea id="comment" class="form-control" placeholder="comment" style="height: 100px"></textarea>
+            <label for="floatingTextarea2">코멘트</label>
+        </div>
+        <div class="mb-2 row">
+            <label class="col-sm-2 col-form-label">태그</label>
+            <div class="col-sm-10">
+                <input id="tag" type="text" class="form-control" placeholder="#지역 #음식종류 #기타">
+            </div>
+        </div>
+        <div class="post_wrap">
+            <form class="row g-3">
+                <div class="col-auto">
+                    <label for="inputPassword2" class="visually-hidden">Password</label>
+                    <input id="password" type="password" class="form-control" placeholder="비밀번호"
+                           onkeydown="if (event.keyCode === 32) return false;">
+                </div>
+                <div class="col-auto">
+                    <button onclick="save_comment()" type="submit" class="btn btn-dark mb-3">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card_list">
+        <div id="card_box" class="row row-cols-1 row-cols-md-5 g-4">
+        </div>
+        <div id="page" class="page">
+        </div>
+    </div>
+
+    <!--모달 팝업-->
+    <div class="popup-wrap" id="popup">
+        <div class="popup">
+            <div class="popup-body">
+                <button class="close_popup_btn"></button>
+                <iframe src="#" id="popup_iframe" class="iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

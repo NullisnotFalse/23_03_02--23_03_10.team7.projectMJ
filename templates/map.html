@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+
+    <title>map</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script type="text/javascript"
+            src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=iai1er7zv3&submodules=geocoder"></script>
+</head>
+
+<script>
+    naver.maps.Service.geocode({
+        address: `{{address}}`
+    }, function (status, response) {
+        if (status === naver.maps.Service.Status.ERROR) {
+            alert('주소를 찾을 수 없습니다.');
+            return;
+        }
+
+        let mapOptions = {
+            center: new naver.maps.LatLng(response.result.items[0].point.y, response.result.items[0].point.x),
+            zoom: 17
+        };
+
+        let map = new naver.maps.Map('map', mapOptions);
+
+        // 마커 추가
+        let marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(response.result.items[0].point.y, response.result.items[0].point.x),
+            map: map
+        });
+    });
+</script>
+
+<body>
+    <div id="map" style="width: 100%;max-width: 600px;height:93vh;"></div>
+</body>
+
+</html>

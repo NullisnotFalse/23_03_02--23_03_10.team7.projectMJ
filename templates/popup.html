@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+    <title>popup</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../static/popup.css">
+</head>
+
+<script>
+    function close_edit_popup() {
+        $('html, body').css({
+            'overflow': 'auto'
+        });
+        $("#popup").fadeOut(200);
+        get_comment();
+    }
+
+    $(document).ready(function () {
+        get_comment()
+        get_reply_list()
+
+        $('#edit_comment_btn').click(function () {
+            $('html, body').css({
+                'overflow': 'hidden'
+            });
+            $('#popup').fadeIn(200);
+            $('.popup').scrollTop(0);
+        })
+        $("#close_popup_btn").click(function () {
+            $('html, body').css({
+                'overflow': 'auto'
+            });
+            $("#popup").fadeOut(200);
+        });
+
+        $('#map_btn').click(function () {
+            $('html, body').css({
+                'overflow': 'hidden'
+            });
+            $('#popup_map').fadeIn(200);
+            $('.popup').scrollTop(0);
+        })
+        $("#close_map_btn").click(function () {
+            $('html, body').css({
+                'overflow': 'auto'
+            });
+            $("#popup_map").fadeOut(200);
+        });
+
+        $(document).on('click', '#delete_comment_btn', function () {
+            $(this).closest('.wrap_box3-1').find('#edit_comment_btn').hide();
+            $(this).closest('.wrap_box3-1').find('.pw_input_box').show();
+            $(this).attr('id', 'check_comment_btn');
+            $(this).text('확인');
+        });
+        $(document).on('click', '#check_comment_btn', function () {
+            $(this).closest('.wrap_box3-1').find('.pw_input_box').hide();
+            $(this).closest('.wrap_box3-1').find('#edit_comment_btn').show();
+            $(this).attr('id', 'delete_comment_btn');
+            $(this).text('삭제');
+
+            let password = $('#password').val()
+
+            let formData = new FormData();
+            formData.append("password_give", password);
+
+            fetch(`/comment/{{num}}`, {method: "DELETE", body: formData,}).then((res) => res.json()).then((data) => {
+                //console.log(data)
+                alert(data['msg'])
+                if (data['reload'] == '1') {
+                    // let i = Math.ceil((parseInt("{{num}}") + 1) / 5)
+                    window.parent.close_popup();
+                }
+            });
+        });
+
+        $('#reply_list').on('click', '.delete_btn', function () {
+            $(this).closest('.pw_check_box').find('.col-auto').show();
+            $(this).removeClass('delete_btn').addClass('check_btn');
+            $(this).text('확인');
+        })
+        $('#reply_list').on('click', '.check_btn', function () {
+            $(this).closest('.pw_check_box').find('.col-auto').hide();
+            $(this).removeClass('check_btn').addClass('delete_btn');
+            $(this).text('삭제');
+
+            let i = this.id
+            let check_id = this.name
+            let relpy_pw_check = $('#reply_pw_check' + i).val()
+
+            let formData = new FormData();
+            formData.append("i_give", i);
+            formData.append("check_id_give", check_id);
+            formData.append("relpy_pw_check_give", relpy_pw_check);
+
+            fetch(`/reply/{{num}}`, {method: "DELETE", body: formData,}).then((res) => res.json()).then((data) => {
+                //console.log(data)
+                if (data['reload'] == '1') {
+                    alert(data['msg'])
+                    window.location.reload()
+                } else {
+                    alert(data['msg'])
+                }
+            });
+        })
+    })
+
+    function get_comment() {
+        fetch(`/comment/{{num}}`).then((res) => res.json()).then((data) => {
+            let rows = data['comment']
+            let name = rows['name']
+            let url = rows['url']
+            let star = rows['star']
+            let menu = rows['menu']
+            let address = rows['address']
+            let comment = rows['comment']
+            let tag = rows['tag']
+            let time = rows['time']
+
+            let star_img = '⭐'.repeat(star)
+
+            $('img').attr('src', url).on('error', function () {
+                $(this).attr('src', 'https://tacm.com/wp-content/uploads/2018/01/no-image-available.jpeg');
+            });
+            $("#name").text(name)
+            $("#star").text(star_img)
+            $("#menu").text(menu)
+            $("#address").text(address)
+            $("#map_iframe").attr('src', '/map/' + address);
+            $("#comment").text(comment)
+            $("#time").text('(' + time + ')')
+            $("#tag").text(tag)
+        })
+    }
+
+    // function get_comment() {
+    //     $('#temp_box').empty()
+    //
+    //     let num = {{ num }}
+    //     fetch(`/comment/${num}`).then((res) => res.json()).then((data) => {
+    //         let rows = data['comment']
+    //         let id = rows['_id']
+    //         let name = rows['name']
+    //         let url = rows['url']
+    //         let star = rows['star']
+    //         let menu = rows['menu']
+    //         let address = rows['address']
+    //         let comment = rows['comment']
+    //         let tag = rows['tag']
+    //
+    //         let star_img = '⭐'.repeat(star)
+    //
+    //         let temp_html = `<div class="img_box">
+    //                              <img id="url" src="${url}" alt="이미지 없음">
+    //                              <button class="close_btn"></button>
+    //                          </div>
+    //                          <div class="wrap_box1">
+    //                              <div class="name_box">
+    //                                  <span id="name">${name}</span>
+    //                              </div>
+    //                              <div class="star_box">
+    //                                  <span id="star">${star_img}</span>
+    //                              </div>
+    //                          </div>
+    //                          <div class="menu_box">
+    //                              <p id="menu">${menu}</p>
+    //                          </div>
+    //                          <div class="wrap_box2">
+    //                              <div class="address_box">
+    //                                  <span id="address">${address}</span>
+    //                              </div>
+    //                              <div class="map_btn_box">
+    //                                  <button type="button" class="btn btn-outline-dark" id="map_btn">지도 보기</button>
+    //                              </div>
+    //                          </div>
+    //                          <div class="comment_box">
+    //                              <div class="card">
+    //                                  <div class="card-body">
+    //                                      <p id="comment" class="card-text">${comment}</p>
+    //                                  </div>
+    //                              </div>
+    //                          </div>
+    //                          <div class="wrap_box3">
+    //                              <div class="tag_box">
+    //                                  <p id="tag">${tag}</p>
+    //                              </div>
+    //                              <div class="wrap_box3-1">
+    //                                  <div class="pw_input_box">
+    //                                      <input id="comment_pw_check" type="password" class="form-control" placeholder="비밀번호"
+    //                                             onkeydown="if (event.keyCode === 32) return false;">
+    //                                  </div>
+    //                                  <button type="button" class="btn btn-outline-dark" id="edit_comment_btn">수정</button>
+    //                                  <button type="button" class="btn btn-outline-dark" id="delete_comment_btn">삭제</button>
+    //                              </div>
+    //                          </div>`
+    //         $('#temp_box').append(temp_html)
+    //         $("#save_reply_btn").attr("name", id)
+    //         $("#map_url").attr("src","https://map.naver.com/v5/search/" + address)
+    //     })
+    // }
+
+    function save_reply() {
+        let reply = $('#reply').val()
+        let reply_name = $('#reply_name').val()
+        let reply_password = $('#reply_password').val()
+
+        if (reply.trim() === '') {
+            alert('댓글을 입력해주세요.')
+        } else if (reply_name.trim() === '') {
+            alert('닉네임을 입력해주세요.')
+        } else if (reply_password.trim() === '') {
+            alert('비밀번호를 입력해주세요.')
+        } else {
+            let formData = new FormData();
+            formData.append("reply_give", reply);
+            formData.append("reply_name_give", reply_name);
+            formData.append("reply_password_give", reply_password);
+
+            fetch(`/reply/{{num}}`, {method: "POST", body: formData,}).then((res) => res.json()).then((data) => {
+                //console.log(data)
+                alert(data["msg"]);
+                window.location.reload();
+            });
+        }
+    }
+
+    function get_reply_list() {
+        $('#reply_list').empty()
+
+        fetch(`/reply/{{num}}`).then((res) => res.json()).then((data) => {
+            let rows = data['reply_list']
+            rows.forEach((a, index) => {
+                let id = a['_id']
+                let reply = a['reply']
+                let reply_name = a['reply_name']
+                let reply_time = a['reply_time']
+
+                let temp_html = `<div class="card">
+                                         <div class="card-body">
+                                             <blockquote class="blockquote mb-0">
+                                                 <p>${reply}<span id="reply_time" class="time">(${reply_time})</span></p>
+                                                 <footer class="blockquote-footer">${reply_name}</footer>
+                                                 <div class="pw_check_box">
+                                                     <div class="col-auto">
+                                                         <input id="reply_pw_check${index}" type="password" class="form-control" placeholder="비밀번호"
+                                                                onkeydown="if (event.keyCode === 32) return false;">
+                                                     </div>
+                                                     <div>
+                                                         <button type="button" class="btn delete_btn" id="${index}" name="${id}">삭제</button>
+                                                     </div>
+                                                 </div>
+                                             </blockquote>
+                                         </div>
+                                     </div>`
+                $('#reply_list').append(temp_html)
+            })
+        })
+    }
+</script>
+
+<body>
+    <div class="outline">
+        <div id="temp_box">
+            <div class="img_box">
+                <img id="url" src="https://tacm.com/wp-content/uploads/2018/01/no-image-available.jpeg">
+                <button class="close_btn"></button>
+            </div>
+            <div class="wrap_box1">
+                <div class="name_box">
+                    <span id="name">.</span>
+                </div>
+                <div class="star_box">
+                    <span id="star">.</span>
+                </div>
+            </div>
+            <div class="menu_box">
+                <p id="menu">.</p>
+            </div>
+            <div class="wrap_box2">
+                <div class="address_box">
+                    <span id="address">.</span>
+                </div>
+                <div class="map_btn_box">
+                    <button type="button" class="btn btn-outline-dark" id="map_btn">지도 보기</button>
+                </div>
+            </div>
+            <div class="comment_box">
+                <div class="card">
+                    <div class="card-body">
+                        <p id="comment" class="card-text"></p>
+                        <span id="time" class="time">()</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap_box3">
+                <div class="tag_box">
+                    <p id="tag">.</p>
+                </div>
+                <div class="wrap_box3-1">
+                    <div class="pw_input_box">
+                        <input id="password" type="password" class="form-control" placeholder="비밀번호"
+                               onkeydown="if (event.keyCode === 32) return false;">
+                    </div>
+                    <button type="button" class="btn btn-outline-dark" id="edit_comment_btn">수정</button>
+                    <button type="button" class="btn btn-outline-dark" id="delete_comment_btn">삭제</button>
+                </div>
+            </div>
+        </div>
+
+        <hr class="hr">
+
+        <div class="reply_input_box">
+            <input id="reply" class="form-control" type="text" placeholder="댓글 입력" aria-label="reply input">
+        </div>
+        <div class="wrap_box4">
+            <div class="reply_pw_box1">
+                <input id="reply_name" type="text" class="form-control" placeholder="닉네임" aria-label="닉네임">
+            </div>
+            <div class="reply_pw_box2">
+                <input id="reply_password" type="password" class="form-control" placeholder="비밀번호"
+                       onkeydown="if (event.keyCode === 32) return false;">
+            </div>
+            <div class="reply_pw_box3">
+                <button onclick="save_reply()" id="save_reply_btn" type="button" class="btn btn-outline-dark" name="">작성</button>
+            </div>
+        </div>
+
+        <hr class="hr">
+
+        <div id="reply_list" class="reply_list">
+            <div class="card">
+                <div class="card-body">
+                    <blockquote class="blockquote mb-0">
+                        <p>댓글</p>
+                        <footer class="blockquote-footer">닉네임</footer>
+                        <div class="pw_check_box">
+                            <div class="col-auto">
+                                <input type="password" class="form-control" id="reply_pw_check" placeholder="비밀번호"
+                                       onkeydown="if (event.keyCode === 32) return false;">
+                            </div>
+                            <div>
+                                <button type="button" class="btn delete_btn" id="0">삭제</button>
+                            </div>
+                        </div>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--모달 팝업-->
+    <div class="popup-wrap" id="popup">
+        <div class="popup">
+            <div class="popup-body">
+                <button class="close_popup_btn" id="close_popup_btn"></button>
+                <iframe src="/edit/{{num}}" class="iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!--모달 팝업-->
+    <div class="popup-wrap" id="popup_map">
+        <div class="popup">
+            <div class="popup-body">
+                <button class="close_popup_btn" id="close_map_btn"></button>
+                <iframe id="map_iframe" src="#" class="iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
