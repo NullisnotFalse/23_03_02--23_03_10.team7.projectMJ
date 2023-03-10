@@ -25,6 +25,9 @@
 
 <script>
     function close_popup() {
+        $('html, body').css({
+                'overflow': 'auto'
+            });
         $("#popup").fadeOut(200);
         get_comment_list()
     }
